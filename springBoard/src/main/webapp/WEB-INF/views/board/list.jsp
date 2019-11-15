@@ -35,7 +35,7 @@
 							<c:forEach items="${ list }" var="board">
 								<tr class="custom-pointer" data-href='<c:out value="${ board.bno }" />'>
 									<td><c:out value="${ board.bno }" /></td>
-									<td><c:out value="${ board.title }" /></td>
+									<td><c:out value="${ board.title }" /> <b>&lsqb;<c:out value="${ board.replyCnt }" />&rsqb;</b></td>
 									<td><c:out value="${ board.writer }" /></td>
 									<td><fmt:formatDate pattern="yyyy-MM-dd" value="${ board.regdate }" /></td>
 									<td><fmt:formatDate pattern="yyyy-MM-dd" value="${ board.updateDate }" /></td>

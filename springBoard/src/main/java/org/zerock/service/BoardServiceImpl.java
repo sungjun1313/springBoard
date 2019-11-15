@@ -3,26 +3,41 @@ package org.zerock.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
 import org.zerock.mapper.BoardMapper;
+import org.zerock.mapper.BoardAttachMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.AllArgsConstructor;
+//import lombok.AllArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
+	@Setter(onMethod_ = @Autowired)
 	private BoardMapper mapper;
 	
+	@Setter(onMethod_ = @Autowired)
+	private BoardAttachMapper attachMapper;
+	
+	@Transactional
 	@Override
 	public void register(BoardVO board) {
 		log.info("register......" + board);
 		mapper.insertSelectKey(board);
+		if(board.getAttachList() == null || board.getAttachList().size() <= 0) {
+			return;
+		}
+		board.getAttachList().forEach(attach -> {
+			attach.setBno(board.getBno());
+			attachMapper.insert(attach);
+		});
 	}
 	
 	@Override
