@@ -43,9 +43,10 @@
 					<h3>File Attach</h3>
 				</div>
 				<div class="card-body">
-					<input type="file" name="uploadFile" multiple class="form-control" />
-					<div class="uploadResult text-center">
-						<ul></ul>
+					<div class="form-group">
+						<input type="file" name="uploadFile" multiple class="form-control" />
+					</div>
+					<div class="row" id="attachBody">
 					</div>
 				</div>
 			</div>
@@ -61,7 +62,7 @@
 			e.preventDefault();
 			var str = "";
 		    
-		    $(".uploadResult ul li").each(function(i, obj){
+		    $("#attachBody .li").each(function(i, obj){
 		      
 		      var jobj = $(obj);
 		      
@@ -130,7 +131,7 @@
 		    
 		    if(!uploadResultArr || uploadResultArr.length == 0){ return; }
 		    
-		    var uploadUL = $(".uploadResult ul");
+		    var uploadUL = $("#attachBody");
 		    
 		    var str ="";
 		    
@@ -138,27 +139,29 @@
 				//console.log(obj.uploadPath);
 				if(obj.image){
 					var fileCallPath =  encodeURIComponent( obj.uploadPath+ "/s_"+obj.uuid +"_"+obj.fileName);
-					str += "<li class='my-2' data-path='"+obj.uploadPath+"'";
-					str +=" data-uuid='"+obj.uuid+"' data-filename='"+obj.fileName+"' data-type='"+obj.image+"'"
+					str += "<div class='col-4 text-center li' data-path='"+obj.uploadPath+"'";
+					str +=" data-uuid='"+obj.uuid+"' data-filename='"+obj.fileName+"' data-type='"+obj.image+"'";
 					str +=" ><div>";
-					str += "<img src='/display?fileName="+fileCallPath+"'><br>";
-					str += "<span> "+ obj.fileName+"</span>";
-					str += "<button type='button' data-file=\'"+fileCallPath+"\' "
-					str += "data-type='image' class='btn btn-warning btn-circle ml-3'>X</button>";
+					str += "<img src='/display?fileName="+fileCallPath+"'></div>";
+					str += "<div> "+ obj.fileName+"</div>";
+					str += "<div>";
+					str += "<button type='button' data-file=\'"+fileCallPath+"\' ";
+					str += "data-type='image' class='btn btn-danger btn-circle ml-3'>X</button>";
 					str += "</div>";
-					str += "</li>";
+					str += "</div>";
 				}else{
 					var fileCallPath =  encodeURIComponent( obj.uploadPath+"/"+ obj.uuid +"_"+obj.fileName);			      
 				    var fileLink = fileCallPath.replace(new RegExp(/\\/g),"/");
 				      
-					str += "<li class='my-2' "
+					str += "<div class='col-4 text-center li' "
 					str += "data-path='"+obj.uploadPath+"' data-uuid='"+obj.uuid+"' data-filename='"+obj.fileName+"' data-type='"+obj.image+"' ><div>";
-					str += "<img src='/resources/img/attach.png' style='width:100px;'><br>"
-					str += "<span>" + obj.fileName + "</span>";
+					str += "<img src='/resources/img/attach.png' style='width:100px;'></div>";
+					str += "<div>" + obj.fileName + "</div>";
+					str += "<div>"
 					str += "<button type='button' data-file=\'"+fileCallPath+"\' "
-					str += "data-type='image' class='btn btn-warning btn-circle ml-3'>X</button>";
+					str += "data-type='image' class='btn btn-danger btn-circle ml-3'>X</button>";
 					str += "</div>";
-					str += "</li>";
+					str += "</div>";
 				}
 
 		    });
@@ -167,14 +170,14 @@
 		  }
 		
 		//파일 삭제
-		$(".uploadResult").on("click", "button", function(e){
+		$("#attachBody").on("click", "button", function(e){
 		    
 		    console.log("delete file");
 		      
 		    var targetFile = $(this).data("file");
 		    var type = $(this).data("type");
 		    
-		    var targetLi = $(this).closest("li");
+		    var targetLi = $(this).closest(".li");
 		    
 		    $.ajax({
 		      url: '/deleteFile',

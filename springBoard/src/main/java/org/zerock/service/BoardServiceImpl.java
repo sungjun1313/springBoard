@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.zerock.domain.BoardVO;
+import org.zerock.domain.BoardAttachVO;
 import org.zerock.domain.Criteria;
 import org.zerock.mapper.BoardMapper;
 import org.zerock.mapper.BoardAttachMapper;
@@ -46,15 +47,29 @@ public class BoardServiceImpl implements BoardService {
 		return mapper.read(bno);
 	}
 	
+	@Transactional
 	@Override
 	public boolean modify(BoardVO board) {
 		log.info("modify......" + board);
-		return mapper.update(board) == 1;
+		attachMapper.deleteAll(board.getBno());
+		
+		boolean modifyResult = mapper.update(board) == 1;
+		
+		if(modifyResult && board.getAttachList() != null && board.getAttachList().size() > 0) {
+			board.getAttachList().forEach(attach -> {
+				attach.setBno(board.getBno());
+				attachMapper.insert(attach);
+			});
+		}
+		
+		return modifyResult;
 	}
 	
+	@Transactional
 	@Override
 	public boolean remove(Long bno) {
 		log.info("remove....." + bno);
+		attachMapper.deleteAll(bno);
 		return mapper.delete(bno) == 1;
 	}
 	
@@ -74,6 +89,12 @@ public class BoardServiceImpl implements BoardService {
 	public int getTotal(Criteria cri) {
 		log.info("get total count");
 		return mapper.getTotalCount(cri);
+	}
+	
+	@Override
+	public List<BoardAttachVO> getAttachList(Long bno){
+		log.info("get Attach list by bno " + bno);
+		return attachMapper.findByBno(bno);
 	}
 	
 }

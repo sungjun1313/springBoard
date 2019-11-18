@@ -53,6 +53,15 @@
 			
 			<div class="card mt-4">
 				<div class="card-header">
+					<h4>Files</h4>
+				</div>
+				<div class="card-body">
+					<div class="row" id="attachBody"></div>
+				</div>
+			</div>
+			
+			<div class="card mt-4">
+				<div class="card-header">
 					<h4 class="float-left">Reply</h4>
 					<div class="float-right">
 						<button class="btn btn-dark" id="addReplyBtn">New Reply</button>
@@ -174,6 +183,49 @@
 			}
 		);
 		*/
+		
+		//attach 불러오기
+		(function(){
+			$.getJSON("/board/getAttachList", {bno: bnoValue}, function(arr){
+				var str = "";
+				
+				$(arr).each(function(i, attach){
+					
+					//image type
+					if(attach.fileType){
+						var fileCallPath = encodeURIComponent(attach.uploadPath + "/s_" + attach.uuid + "_" + attach.fileName);
+						str += "<div class='col-4 text-center li' data-path='" + attach.uploadPath + "' data-uuid='" + attach.uuid + "' data-filename='" + attach.fileName + "' data-type='" + attach.fileType+"'>";
+						str += "<div>"
+						str += "<img src='/display?fileName=" + fileCallPath + "' />";
+						str += "</div>";
+						str += "<div>" + attach.fileName + "</div>";
+						str += "</div>";
+					}else{
+						str += "<div class='col-4 text-center li' data-path='" + attach.uploadPath + "' data-uuid='" + attach.uuid + "' data-filename='" + attach.fileName + "' data-type='" + attach.fileType+"'>";
+						str += "<div>"
+						str += "<img src='/resources/img/attach.png' style='width:100px;' />";
+						str += "</div>";
+						str += "<div>" + attach.fileName + "</div>";
+						str += "</div>";
+					}
+					
+					$("#attachBody").html(str);
+				});
+			})
+		})();
+		
+		//attach file click
+		$("#attachBody").on("click", ".li", function(e){
+			var liObj = $(this);
+			var path = encodeURIComponent(liObj.data("path") + "/" + liObj.data("uuid") + "_" + liObj.data("filename"));
+			//console.log(path);
+			//return false;
+			if(liObj.data("type")){
+				self.location = "/display?fileName=" + path;
+			}else{
+				self.location = "/download?fileName=" + path;
+			}
+		});
 		
 		//댓글 리스트 불러오기 함수 정의
 		function showList(page){

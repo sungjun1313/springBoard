@@ -151,7 +151,7 @@ public class UploadController {
 	@ResponseBody
 	public ResponseEntity<Resource> downloadFile(@RequestHeader("User-Agent") String userAgent, String fileName) {
 
-		Resource resource = new FileSystemResource("C:\\Users\\JLPartner\\Desktop\\spring3\\upload\\tmp" + fileName);
+		Resource resource = new FileSystemResource("C:\\Users\\JLPartner\\Desktop\\spring3\\upload\\tmp\\" + fileName);
 
 		if (resource.exists() == false) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
