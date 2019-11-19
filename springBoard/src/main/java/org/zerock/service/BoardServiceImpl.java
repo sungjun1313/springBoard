@@ -10,8 +10,7 @@ import org.zerock.domain.BoardAttachVO;
 import org.zerock.domain.Criteria;
 import org.zerock.mapper.BoardMapper;
 import org.zerock.mapper.BoardAttachMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.zerock.mapper.ReplyMapper;
 
 //import lombok.AllArgsConstructor;
 import lombok.Setter;
@@ -26,6 +25,9 @@ public class BoardServiceImpl implements BoardService {
 	
 	@Setter(onMethod_ = @Autowired)
 	private BoardAttachMapper attachMapper;
+	
+	@Setter(onMethod_ = @Autowired)
+	private ReplyMapper replyMapper;
 	
 	@Transactional
 	@Override
@@ -69,6 +71,7 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public boolean remove(Long bno) {
 		log.info("remove....." + bno);
+		replyMapper.deleteAll(bno);
 		attachMapper.deleteAll(bno);
 		return mapper.delete(bno) == 1;
 	}

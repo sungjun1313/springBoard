@@ -44,7 +44,7 @@
 						<sec:authorize access="isAuthenticated()">
 							<c:if test="${ pinfo.member.userid eq board.writer }">
 								<a href="/board/modify?bno=<c:out value='${ board.bno }' /> " id="modifyBtn" class="btn btn-info mr-2">Modify</a>
-								<button type="submit" class="btn btn-danger mr-2">Remove</button>
+								<button type="submit" id="formDeleteBtn" class="btn btn-danger mr-2">Remove</button>
 							</c:if>
 						</sec:authorize>	
 							<a href="/board/list" id="listBtn" class="btn btn-primary">List</a>
@@ -471,6 +471,14 @@
 			operForm.attr("action", "/board/modify");
 			operForm.submit();
 		});
+		
+		$("#formDeleteBtn").on("click", function(e){
+			e.preventDefault();
+			if(confirm("정말로 삭제하시겠습니까?")){
+				$("#deleteForm").submit();
+			}
+		});
+		
 	});
 </script>
 
