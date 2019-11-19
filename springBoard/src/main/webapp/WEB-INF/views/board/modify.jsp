@@ -4,6 +4,8 @@
 
 <%@ include file="../includes/header.jsp" %>
 
+<sec:authentication property="principal" var="pinfo" />
+
 <div class="container">
 	<div class="row my-4">
 		<div class="col-lg-12">
@@ -19,6 +21,8 @@
 				</div>
 				<div class="card-body">
 					<form id="modifyForm" roll="form" action="/board/modify" method="post">
+						<input type="hidden" name="${ _csrf.parameterName }" value="${ _csrf.token }" />
+					
 						<input type="hidden" name="bno" value='<c:out value="${ board.bno }" />' >
 						<input type="hidden" name="pageNum" value="<c:out value='${ cri.pageNum }' />" />
 						<input type="hidden" name="amount" value="<c:out value='${ cri.amount }' />" />
@@ -34,11 +38,14 @@
 						</div>
 						<div class="form-group">
 							<label>Writer</label>
-							<input class="form-control" name="writer" value='<c:out value="${ board.writer }" />'>
+							<input class="form-control" name="writer" value='<c:out value="${ board.writer }" />' readonly="readonly">
 						</div>
 						<div class="form-group text-center">
-							<button type="submit" data-oper="modify" id="modifyBtn" class="btn btn-success">Modify</button>
-							
+							<sec:authorize access="isAuthenticated()">
+								<c:if test="${ pinfo.member.userid eq board.writer }">
+									<button type="submit" data-oper="modify" id="modifyBtn" class="btn btn-success">Modify</button>
+								</c:if>
+							</sec:authorize>
 							<a href="/board/list" id="listBtn" class="btn btn-primary">List</a>
 						</div>
 					</form>
@@ -72,6 +79,8 @@
 		var bnoValue = "<c:out value='${ board.bno }' />";
 		var operForm = $("#operForm");
 		var attachBody = $("#attachBody");
+		var csrfHeaderName = "${_csrf.headerName}";
+		var csrfTokenValue = "${_csrf.token}";
 		
 		//attach 불러오기
 		(function(){
@@ -167,6 +176,9 @@
 				contentType: false,
 				data: formData,
 				type: 'POST',
+				beforeSend: function(xhr){
+			    	xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);  
+			     },
 				dataType: 'json',
 				success: function(result){
 					console.log(result);
@@ -248,6 +260,9 @@
 		    $.ajax({
 		      url: '/deleteFile',
 		      data: {fileName: targetFile, type:type},
+		      beforeSend: function(xhr){
+			    	xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);  
+			  },
 		      dataType:'text',
 		      type: 'POST',
 		        success: function(result){

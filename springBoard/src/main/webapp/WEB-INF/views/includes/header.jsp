@@ -1,4 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="sec" %>
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
@@ -26,7 +27,7 @@
 		<!-- Header -->
 		<nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-dark">
 			<div class="container">
-  				<a class="navbar-brand" href="#">Navbar</a>
+  				<a class="navbar-brand" href="/board/list">SJ Board</a>
   				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     				<span class="navbar-toggler-icon"></span>
   				</button>
@@ -34,6 +35,7 @@
 
   				<div class="collapse navbar-collapse" id="navbarSupportedContent">
     				<ul class="navbar-nav ml-auto">
+    				<!-- 
       					<li class="nav-item active">
         					<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
       					</li>
@@ -54,6 +56,24 @@
       					<li class="nav-item">
         					<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
       					</li>
+      				 -->
+      				 	<sec:authorize access="isAnonymous()">
+      				 		<li class="nav-item">
+      				 			<a class="nav-link" href="#">Register</a>
+      				 		</li>
+      				 		<li class="nav-item">
+      				 			<a class="nav-link" href="/customLogin">Login</a>
+      				 		</li>
+      				 	</sec:authorize>
+      				 	
+      				 	<sec:authorize access="isAuthenticated()">
+      				 		<li class="nav-item">
+      				 			<a class="nav-link" href="/customProfile">Profile</a>
+      				 		</li>
+      				 		<li class="nav-item">
+      				 			<a class="nav-link" href="/customLogout">Logout</a>
+      				 		</li>
+      				 	</sec:authorize>
     				</ul>
   				</div>
   			</div>

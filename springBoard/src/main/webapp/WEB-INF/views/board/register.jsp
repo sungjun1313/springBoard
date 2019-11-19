@@ -19,6 +19,7 @@
 				</div>
 				<div class="card-body">
 					<form rol="form" id="createForm" action="/board/register" method="post">
+						<input type="hidden" name="${ _csrf.parameterName }" value="${ _csrf.token }" />
 						<div class="form-group">
 							<label>Title</label>
 							<input class="form-control" name="title" />
@@ -29,7 +30,7 @@
 						</div>
 						<div class="form-group">
 							<label>Writer</label>
-							<input class="form-control" name="writer" />
+							<input class="form-control" name="writer" value="<sec:authentication property='principal.member.userid' />" readonly="readonly" />
 						</div>
 						<div class="form-group text-center">
 							<button id="createBtn" type="submit" class="btn btn-primary">Submit</button>
@@ -57,6 +58,8 @@
 <script>
 	$(document).ready(function(){
 		var formObj = $("#createForm");
+		var csrfHeaderName = "${_csrf.headerName}";
+		var csrfTokenValue = "${_csrf.token}";
 		
 		$("#createBtn").on("click", function(e){
 			e.preventDefault();
@@ -99,6 +102,9 @@
 				url: '/uploadAjaxAction',
 				processData: false,
 				contentType: false,
+				beforeSend: function(xhr){
+					xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+				},
 				data: formData,
 				type: 'POST',
 				dataType: 'json',
@@ -182,6 +188,9 @@
 		    $.ajax({
 		      url: '/deleteFile',
 		      data: {fileName: targetFile, type:type},
+		      beforeSend: function(xhr){
+		    	xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);  
+		      },
 		      dataType:'text',
 		      type: 'POST',
 		        success: function(result){

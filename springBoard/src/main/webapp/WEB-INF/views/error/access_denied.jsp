@@ -4,15 +4,11 @@
 
 <%@ include file="../includes/header.jsp" %>
 	<div class="container">
-		<h4 class="my-3">
-			<c:out value="${ exception.getMessage() }"></c:out>
-		</h4>
-		<ul>
-			<c:forEach items="${ exception.getStackTrace() }" var="stack">
-				<li>
-					<c:out value="${ stack }"></c:out>
-				</li>
-			</c:forEach>
-		</ul>
+		<h2 class="mt-3 text-center">
+			<c:out value="${ SPRING_SECURITY_403_EXCEPTION.getMessage() }" />
+		</h2>
+		<h2 class="mt-3 text-center">
+			<c:out value="${ msg }" />
+		</h2>
 	</div>
 <%@ include file="../includes/footer.jsp" %>

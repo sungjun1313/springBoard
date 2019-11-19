@@ -4,6 +4,8 @@
 
 <%@ include file="../includes/header.jsp" %>
 
+<sec:authentication property="principal" var="pinfo" />
+
 <div class="container">
 	<div class="row my-4">
 		<div class="col-lg-12">
@@ -19,6 +21,8 @@
 				</div>
 				<div class="card-body">
 					<form id="deleteForm" roll="form" action="/board/remove?bno=<c:out value='${ board.bno }' />" method="post">
+						<input type="hidden" name="${ _csrf.parameterName }" value="${ _csrf.token }" />
+					
 						<input type="hidden" name="bno" value='<c:out value="${ board.bno }" />' >
 						<input type="hidden" name="pageNum" value="<c:out value='${ cri.pageNum }' />" />
 						<input type="hidden" name="amount" value="<c:out value='${ cri.amount }' />" />
@@ -37,8 +41,12 @@
 							<input class="form-control" name="writer" value='<c:out value="${ board.writer }" />' readonly="readonly" >
 						</div>
 						<div class="form-group text-center">
-							<a href="/board/modify?bno=<c:out value='${ board.bno }' /> " id="modifyBtn" class="btn btn-info mr-2">Modify</a>
-							<button type="submit" class="btn btn-danger mr-2">Remove</button>
+						<sec:authorize access="isAuthenticated()">
+							<c:if test="${ pinfo.member.userid eq board.writer }">
+								<a href="/board/modify?bno=<c:out value='${ board.bno }' /> " id="modifyBtn" class="btn btn-info mr-2">Modify</a>
+								<button type="submit" class="btn btn-danger mr-2">Remove</button>
+							</c:if>
+						</sec:authorize>	
 							<a href="/board/list" id="listBtn" class="btn btn-primary">List</a>
 						</div>
 					</form>
@@ -63,9 +71,11 @@
 			<div class="card mt-4">
 				<div class="card-header">
 					<h4 class="float-left">Reply</h4>
-					<div class="float-right">
-						<button class="btn btn-dark" id="addReplyBtn">New Reply</button>
-					</div>
+					<sec:authorize access="isAuthenticated()">
+						<div class="float-right">
+							<button class="btn btn-dark" id="addReplyBtn">New Reply</button>
+						</div>
+					</sec:authorize>
 				</div>
 				<div class="card-body" id="reply-body">
 					<!-- 
@@ -103,7 +113,7 @@
 				</div>
 				<div class="form-group">
 					<label>Replyer</label>
-					<input type="text" class="form-control" name="replyer" placeholder="Replyer" />
+					<input type="text" class="form-control" name="replyer" placeholder="Replyer" readonly="readonly" />
 				</div>
 				<div class="form-group">
 					<label>Reply Date</label>
@@ -130,7 +140,21 @@
 		var replyPageFooter = $("#reply-paging");
 		var pageNum = 1;
 		
+		var replyer = null;
+		
+		<sec:authorize access="isAuthenticated()">
+			replyer = "<sec:authentication property='principal.member.userid' />";
+		</sec:authorize>
+		
+		var csrfHeaderName = "${_csrf.headerName}";
+		var csrfTokenValue = "${_csrf.token}";
+		
 		showList(1);
+		
+		//Ajax spring security header
+		$(document).ajaxSend(function(e, xhr, options){
+			xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+		});
 		
 		//for replyService add test
 		/*
@@ -272,6 +296,7 @@
 		//reply register
 		$("#addReplyBtn").on("click",function(){
 			modal.find("input").val("");
+			modal.find("input[name='replyer']").val(replyer);
 			modalInputReplyDate.closest("div").hide();
 			modal.find("button[id != 'modalCloseBtn']").hide();
 			modalRegisterBtn.show();
@@ -283,7 +308,7 @@
 			var inputReply = modalInputReply.val();
 			var inputReplyer = modalInputReplyer.val();
 			if(!inputReply){
-				alert("댓글이 적어주세요.");
+				alert("댓글을 적어주세요.");
 				return false;
 			}
 			
@@ -328,6 +353,19 @@
 			var rno = modal.data("rno");
 			var inputReply = modalInputReply.val();
 			var inputReplyer = modalInputReplyer.val();
+			
+			if(!replyer){
+				alert("로그인 후 수정이 가능합니다.");
+				modal.modal("hide");
+				return;
+			}
+			
+			if(replyer != inputReplyer){
+				alert("자신이 작성한 댓글만 수정이 가능합니다.");
+				modal.modal("hide");
+				return;
+			}
+			
 			if(!inputReply){
 				alert("댓글이 적어주세요.");
 				return false;
@@ -338,7 +376,7 @@
 				return false;
 			}
 			
-			var reply = {rno:rno, reply:inputReply};
+			var reply = {rno:rno, reply:inputReply, replyer: inputReplyer};
 			replyService.update(reply, function(result){
 				alert(result);
 				modal.modal("hide");
@@ -349,7 +387,22 @@
 		//reply remove
 		modalRemoveBtn.on("click",function(e){
 			var rno = modal.data("rno");
-			replyService.remove(rno, function(result){
+			
+			if(!replyer){
+				alert("로그인 후 삭제가 가능합니다.");
+				modal.modal("hide");
+				return;
+			}
+			
+			var originalReplyer = modalInputReplyer.val();
+			
+			if(replyer != originalReplyer){
+				alert("자신이 작성한 댓글만 삭제 가능합니다.");
+				modal.modal("hide");
+				return;
+			}
+			
+			replyService.remove(rno, originalReplyer, function(result){
 				alert(result);
 				modal.modal("hide");
 				showList(pageNum);
@@ -405,7 +458,7 @@
 
 <script>
 	$(document).ready(function(){
-		var operForm = $("#operForm")
+		var operForm = $("#operForm");
 		
 		$("#listBtn").on("click", function(e){
 			e.preventDefault();
