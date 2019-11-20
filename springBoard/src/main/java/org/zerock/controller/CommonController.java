@@ -1,5 +1,8 @@
 package org.zerock.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,7 +23,10 @@ public class CommonController {
 	}
 	
 	@GetMapping("/customLogin")
-	public String loginInput(String error, String logout, Model model) {
+	public String loginInput(String error, String logout, HttpServletRequest request ,Model model, Authentication auth) {
+		if(auth != null) {
+			return "redirect:/customProfile";
+		}
 		
 		if(error != null) {
 			model.addAttribute("error", "Login Error Check Your Account");
@@ -30,20 +36,33 @@ public class CommonController {
 			model.addAttribute("logout", "Logout Complete");
 		}
 		
+		if(error == null && logout == null) {
+			log.info("error: " + error +" , logout: " +logout );
+			String referer = request.getHeader("Referer");
+			request.getSession().setAttribute("prevPage", referer);
+		}
+			
+		
 		return "account/customLogin";
 	}
 	
+	
 	@GetMapping("/customLogout")
-	public String logoutGet() {
+	public String logoutGet(Authentication auth) {
 		log.info("custom logout");
+		if(auth == null) {
+			return "redirect:/board/list";
+		}
 		return "account/customLogout";
 	}
 	
+	@PreAuthorize("isAuthenticated()")
 	@PostMapping("/customLogout")
 	public void logoutPost() {
 		log.info("post custom logout");
 	}
 	
+	@PreAuthorize("isAuthenticated()")
 	@GetMapping("/customProfile")
 	public String getProfile() {
 		log.info("custom profile");

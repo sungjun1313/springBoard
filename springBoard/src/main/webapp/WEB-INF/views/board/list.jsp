@@ -16,9 +16,11 @@
 			<div class="card">
 				<div class="card-header">
 					<h3 class="float-left">Board List Page</h3>
-					<div class="float-right">
-						<a href="/board/register" class="btn btn-dark">Register New Board</a>
-					</div>
+					<sec:authorize access="isAuthenticated()">
+						<div class="float-right">
+							<a href="/board/register" class="btn btn-dark">Register New Board</a>
+						</div>
+					</sec:authorize>
 				</div>
 				<div class="card-body">
 					<table class="table table-striped table-bordered table-hover">

@@ -74,6 +74,12 @@
 	</div>
 </div>
 
+<c:if test="${ board.writer != pinfo.member.userid }">
+	<script>
+		window.location = "/accessError";
+	</script>
+</c:if>
+
 <script>
 	$(document).ready(function(){
 		var bnoValue = "<c:out value='${ board.bno }' />";
